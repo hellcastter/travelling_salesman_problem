@@ -4,6 +4,8 @@ import math
 from typing import List, Set
 from itertools import permutations
 
+minimal_distances = {}
+
 def read_csv(file_path: str) -> List[List[int]]:
     """ 1 """
     return [[0, 2, 9, 10], [1, 0, 6, 4], [15, 7, 0, 8], [6, 3, 12, 0]]
@@ -23,7 +25,7 @@ def distance(x: int, y: int, cities_map: List[List[int]]) -> int:
     return cities_map[y][x]
 
 
-def length_of_shortest_path(end: int, cities_set: Set[int], cities_map: List[List[int]]) -> int:
+def length_of_shortest_path(end: int, cities_set: List[int], cities_map: List[List[int]]) -> int:
     """
     Searches the shortest path from 0th vertex to end vertex through set_of_cities.
 
@@ -47,43 +49,89 @@ def length_of_shortest_path(end: int, cities_set: Set[int], cities_map: List[Lis
 
     min_length = math.inf
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # go through all combinations of set of cities
-    for permutation in permutations(cities_set):
-        local_length = 0
+    # for permutation in permutations(cities_set):
+    #     local_length = 0
 
-        for city_index, city in enumerate(permutation):
-            # if first city => add length between 0 and first city
-            if city_index == 0:
-                local_length += distance(0, city, cities_map)
-                continue
+    #     for city_index, city in enumerate(permutation):
+    #         # if first city => add length between 0 and first city
+    #         if city_index == 0:
+    #             local_length += distance(0, city, cities_map)
+    #             continue
 
-            # get length between prev city and current
-            prev_city = permutation[city_index - 1]
-            local_length += distance(prev_city, city, cities_map)
+    #         # get length between prev city and current
+    #         prev_city = permutation[city_index - 1]
+    #         local_length += distance(prev_city, city, cities_map)
 
-        # add distance between last from combination and end city
-        local_length += distance(permutation[-1], end, cities_map)
+    #     # add distance between last from combination and end city
+    #     local_length += distance(permutation[-1], end, cities_map)
 
-        min_length = min(min_length, local_length)
+    #     min_length = min(min_length, local_length)
 
     return min_length
 
 
 def TSP(cities_map: List[List[int]]) -> List[int]:
     """ 1 """
-    size = len(cities_map)
+    map_size = len(cities_map)
     minimal = math.inf
 
-    for s in range(1, size - 1):
-        cities_list = list(range(1, size))
-        cities_list.remove(s)
-        cities = set(cities_list)
 
-        minimal = min(minimal, length_of_shortest_path(s, cities, cities_map) + distance(s, 0, cities_map))
-        # for i in permutations(range(1, size), s):
-        #     for k in i:
+    for set_size in range(1, map_size - 1):
+        combinations = permutations(list_excluded, set_size)
 
-    print(minimal)
+        for combination in combinations:
+            for excluded in combination:
+                list_excluded = list(combination)
+                list_excluded.remove(excluded)
+
+                for vertex in list_excluded:
+                    length_of_shortest_path(vertex, list_excluded, cities_map)
 
 
 
