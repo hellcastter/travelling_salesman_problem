@@ -72,8 +72,9 @@ def length_of_shortest_path(end: int, cities_list: List[int], cities_map: List[L
                 local_min_path = cities_list
 
         # length = length_of_shortest_path(vertex, combination, cities_map)
-            minimal_distances[(end, excluded, len(cities_list))] = (local_min_distance, local_min_path)
-
+                minimal_distances[(end, excluded, len(cities_list))] = (local_min_distance, local_min_path)                 
+                local_min_path = cities_list
+                local_min_path.append(second_to_last_end)
 
         # if min_length > local_min_distance:
             # min_length = local_min_distance
