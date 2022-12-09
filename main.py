@@ -1,231 +1,178 @@
 """ Traveling salesman problem """
 import time
-import math
 from typing import List
-from pprint import pprint
-from itertools import permutations
-
-minimal_distances = {}
+from itertools import combinations
+from collections.abc import Iterable
 
 def read_csv(file_path: str) -> List[List[int]]:
     """ 1 """
-    return [
-        [0, 2, 9, 10, 4],
-        [1, 0, 6, 4, 6],
-        [15, 7, 0, 8, 8],
-        [6, 3, 12, 0, 5],
-        [6, 3, 12, 3, 0]]
-    
     # return [
-    #     [0, 2, 9, 10],
-    #     [1, 0, 6, 4],
-    #     [15, 7, 0, 8],
-    #     [6, 3, 12, 0]]
+    #     [0, 2, 9, 10, 2],
+    #     [1, 0, 6, 4, 19],
+    #     [15, 7, 0, 8, 17],
+    #     [6, 3, 12, 0, 12],
+    #     [6, 3, 12, 14, 0]]
 
-def distance(x: int, y: int, cities_map: List[List[int]]) -> int:
+    return [
+        [0, 2, 9, 10],
+        [1, 0, 6, 4],
+        [15, 7, 0, 8],
+        [6, 3, 12, 0]]
+
+def distance(x_city: int, y_city: int, cities_map: List[List[int]]) -> int:
     """
     Distance between two cities
     Args:
-        x (int): start city
-        y (int): end city
+        x_city (int): start city
+        y_city (int): end city
         cities_map (List[List[int]]): city map
     Returns:
         int: distance
     """
-    return cities_map[x][y]
+    return cities_map[y_city][x_city]
 
-
-# def length_of_shortest_path(end: int, cities_list: List[int], cities_map: List[List[int]]) -> int:
-#     """
-#     Searches the shortest path from 0th vertex to end vertex through set_of_cities.
-#     Args:
-#         end (int): to what vertex do we want to get
-#         cities_set (Set[int]): through what cities we want to go through
-#         cities_map (List[List[int]]): our map
-#     Return:
-#         int: length of shortest path
-#     >>> length_of_shortest_path(2, {}, [[0,2,9,10], [1,0,6,4], [15,7,0,8], [6,3,12,0]])
-#     15
-#     >>> length_of_shortest_path(3, {2}, [[0,2,9,10], [1,0,6,4], [15,7,0,8], [6,3,12,0]])
-#     27
-#     >>> length_of_shortest_path(1, {2, 3}, [[0,2,9,10], [1,0,6,4], [15,7,0,8], [6,3,12,0]])
-#     20
-#     """
-#     if len(cities_list) == 0:
-#         minimal_distances[end, -1, 0] = (distance(0, end, cities_map), [])
-#         return
-
-
-#     # min_length = math.inf
-#     # min_path_list = []
-
-#     # minimal_distances
-#     for second_to_last_end in cities_list:
-#         local_min_distance = math.inf
-#         local_min_path = []
-
-#         if len(cities_list) > 1:
-#             for excluded in cities_list:
-#                 if excluded == second_to_last_end:
-#                     continue
-                
-#                 pprint(minimal_distances)
-#                 local_distance = minimal_distances[(second_to_last_end, excluded, len(cities_list) - 1)][0] + distance(excluded, end, cities_map)
-
-#                 if local_min_distance > local_distance:
-#                     local_min_distance = local_distance
-
-#                     local_min_path = cities_list
-
-#             # length = length_of_shortest_path(vertex, combination, cities_map)
-#                     minimal_distances[(end, excluded, len(cities_list))] = (local_min_distance, local_min_path)                 
-                    
-#         else:
-#             local_distance = minimal_distances[(second_to_last_end, -1, len(cities_list) - 1)][0] + distance(second_to_last_end, end, cities_map)
-            
-#             if local_min_distance > local_distance:
-#                 local_min_distance = local_distance
-#                 local_min_path = cities_list
-
-#                 # length = length_of_shortest_path(vertex, combination, cities_map)
-#                 minimal_distances[(end, -1, len(cities_list))] = (local_min_distance, local_min_path)
-
-        # if min_length > local_min_distance:
-            # min_length = local_min_distance
-            # min_path_list = local_min_path
-
-    # if min_length != math.inf:
-        # return min_length, min_path_list
-    # return None
-
-
-
-    # go through all combinations of set of cities
-    # for permutation in permutations(cities_set):
-    #     local_length = 0
-
-    #     for city_index, city in enumerate(permutation):
-    #         # if first city => add length between 0 and first city
-    #         if city_index == 0:
-    #             local_length += distance(0, city, cities_map)
-    #             continue
-
-    #         # get length between prev city and current
-    #         prev_city = permutation[city_index - 1]
-    #         local_length += distance(prev_city, city, cities_map)
-
-    #     # add distance between last from combination and end city
-    #     local_length += distance(permutation[-1], end, cities_map)
-
-    #     min_length = min(min_length, local_length)
-
-    # return min_length
-    
-    
-def length_of_shortest_path(end: int, cities_count: int, cities_map: List[List[int]]) -> int:
+def vertexes_to_bits(combination: Iterable[int]) -> int:
     """
-    Searches the shortest path from 0th vertex to end vertex through cities_list.
+    Convert vertexes to bits by adding all binaries values
+
     Args:
-        end (int): to what vertex do we want to get
-        cities_set (Set[int]): through what cities we want to go through
-        cities_map (List[List[int]]): our map
-    Return:
-        int: length of shortest path
-    >>> length_of_shortest_path(2, {}, [[0,2,9,10], [1,0,6,4], [15,7,0,8], [6,3,12,0]])
-    15
-    >>> length_of_shortest_path(3, {2}, [[0,2,9,10], [1,0,6,4], [15,7,0,8], [6,3,12,0]])
-    27
-    >>> length_of_shortest_path(1, {2, 3}, [[0,2,9,10], [1,0,6,4], [15,7,0,8], [6,3,12,0]])
-    20
+        combination (Tuple[int]): Tuple of vertexes
+
+    Returns:
+        int: Binary representation
+
+    >>> vertexes_to_bits((1, 2, 3))
+    14
     """
-    if cities_count == 0:
-        minimal_distances[(end, -1, 0)] = (distance(0, end, cities_map), [])
-        return
-    
-    size = len(cities_map)
-    city_range = list(range(1, size))
-    city_range.remove(end)
-    
-    for exclude_city in city_range:
-        loc_min_v = math.inf
-        loc_min_p = []
-        
-        a = city_range[:]
-        a.remove(exclude_city)
-        for through_city in a:
-            if through_city == end:
-                continue
-            
-            
-            exclude = -1 if cities_count - 1 == 0 else exclude_city
-            prev_distance = minimal_distances[through_city, exclude, cities_count - 1]
-            
-            if end in minimal_distances[through_city, exclude, cities_count - 1][1]:
-                continue
-            
-            
-            
-            d = prev_distance[0] + distance(through_city, end, cities_map)
-            
-            if loc_min_v > d:
-                loc_min_v = d
-                loc_min_p = prev_distance[1] + [through_city]
-        
-        minimal_distances[(end, exclude_city, cities_count)] = (loc_min_v, loc_min_p)
+    bits = 0
+    for i in combination:
+        bits |= 1 << i
 
-        # previous_minimum = minimal_distances[(exclude, end, len(cities_count) - 1)]
-        # minimal_distances[(end, ?, len(cities_list))] = (previous_minimum[0] + distance(exclude, end, cities_map), previous_minimum[1] + [exclude])
+    return bits
+
+def binary_without_vertex(vertex: int, binary: int) -> int:
+    """
+    get combination without vertex element
+    we just set 0 in vertex-th place in binary
+
+    Args:
+        vertex (int): "deleted" vertex
+        binary (int): set represented in binary
+
+    Returns:
+        int: binary without element
+
+    >>> binary_without_vertex(3, 16)
+    16
+    """
+    return binary & ~(1 << vertex)
 
 
-def TSP(cities_map: List[List[int]]) -> List[int]:
-    """ 1 """
-    map_size = len(cities_map)
-    
-    # for i in range(1, map_size):
-        # length_of_shortest_path(i, [], cities_map)
+def exact_tsp(cities_map: List[List[int]]) -> List[int]:
+    """
+    Searches the shortest way through all vertexes in graph going through
+    all vertexes only once in exact way
 
-    
-    for set_size in range(map_size - 2):
-        # combination_used_list = [()]
-        
-        for vertex in range(1, map_size):
-            # print(set_size, vertex)
-            length_of_shortest_path(vertex, set_size, cities_map)
-            
+    Args:
+        cities_map (List[List[int]]): Adjacency matrix representing distances between vertexes
 
-        # for excluded in range(1, map_size):
-            # permutations_set = set(range(1, map_size))
-            # permutations_set.remove(excluded)
-            
-            # combinations = permutations(permutations_set, set_size)
-            # for combination in combinations:
-                # for vertex in combination:
-                    # combination_list = list(combination)
-                    # combination_list.remove(vertex)
-                    
-                    # if (vertex, combination_list) not in combination_used_list:
-                        # combination_used_list.append((vertex, combination_list))
-                
-    # for i in range(1, map_size):
-        # print( minimal_distances[i] )
+    Returns:
+        List[int]: the shortest way
 
-    pprint(minimal_distances)
+    >>> exact_tsp([[0, 2, 9, 10], [1, 0, 6, 4], [15, 7, 0, 8], [6, 3, 12, 0]])
+    [1, 2, 4, 3, 1]
 
-start = time.time()
-TSP(read_csv('graph.csv'))
-# TSP([[0, 141, 134, 152, 173, 289, 326, 329, 285, 401, 388, 366, 343, 305, 276], 
-# [141, 0, 152, 150, 153, 312, 354, 313, 249, 324, 300, 272, 247, 201, 176], 
-# [134, 152, 0, 24, 48, 168, 210, 197, 153, 280, 272, 257, 237, 210, 181], 
-# [152, 150, 24, 0, 24, 163, 206, 182, 133, 257, 248, 233, 214, 187, 158], 
-# [173, 153, 48, 24, 0, 160, 203, 167, 114, 234, 225, 210, 190, 165, 137], 
-# [289, 312, 168, 163, 160, 0, 43, 90, 124, 250, 264, 270, 264, 267, 249], 
-# [326, 354, 210, 206, 203, 43, 0, 108, 157, 271, 290, 299, 295, 303, 287], 
-# [329, 313, 197, 182, 167, 90, 108, 0, 70, 164, 183, 195, 194, 210, 201], 
-# [285, 249, 153, 133, 114, 124, 157, 70, 0, 141, 147, 148, 140, 147, 134], 
-# [401, 324, 280, 257, 234, 250, 271, 164, 141, 0, 36, 67, 88, 134, 150], 
-# [388, 300, 272, 248, 225, 264, 290, 183, 147, 36, 0, 33, 57, 104, 124], 
-# [366, 272, 257, 233, 210, 270, 299, 195, 148, 67, 33, 0, 26, 73, 96], 
-# [343, 247, 237, 214, 190, 264, 295, 194, 140, 88, 57, 26, 0, 48, 71], 
-# [305, 201, 210, 187, 165, 267, 303, 210, 147, 134, 104, 73, 48, 0, 30], 
-# [276, 176, 181, 158, 137, 249, 287, 201, 134, 150, 124, 96, 71, 30, 0]])
-print("--- %s seconds ---" % (time.time() - start))
+    11x11
+    >>> exact_tsp([[0, 29, 20, 21, 16, 31, 100, 12, 4, 31, 18],
+    ...     [29, 0, 15, 29, 28, 40, 72, 21, 29, 41, 12],
+    ...     [20, 15, 0, 15, 14, 25, 81, 9, 23, 27, 13],
+    ...     [21, 29, 15, 0, 4, 12, 92, 12, 25, 13, 25],
+    ...     [16, 28, 14, 4, 0, 16, 94, 9, 20, 16, 22],
+    ...     [31, 40, 25, 12, 16, 0, 95, 24, 36, 3, 37],
+    ...     [100, 72, 81, 92, 94, 95, 0, 90, 101, 99, 84],
+    ...     [12, 21, 9, 12, 9, 24, 90, 0, 15, 25, 13],
+    ...     [4, 29, 23, 25, 20, 36, 101, 15, 0, 35, 18],
+    ...     [31, 41, 27, 13, 16, 3, 99, 25, 35, 0, 38],
+    ...     [18, 12, 13, 25, 22, 37, 84, 13, 18, 38, 0]])
+    [1, 9, 11, 2, 7, 3, 6, 10, 4, 5, 8, 1]
+
+    15x15
+    >>> exact_tsp([[0, 141, 134, 152, 173, 289, 326, 329, 285, 401, 388, 366, 343, 305, 276],
+    ...     [141, 0, 152, 150, 153, 312, 354, 313, 249, 324, 300, 272, 247, 201, 176],
+    ...     [134, 152, 0, 24, 48, 168, 210, 197, 153, 280, 272, 257, 237, 210, 181],
+    ...     [152, 150, 24, 0, 24, 163, 206, 182, 133, 257, 248, 233, 214, 187, 158],
+    ...     [173, 153, 48, 24, 0, 160, 203, 167, 114, 234, 225, 210, 190, 165, 137],
+    ...     [289, 312, 168, 163, 160, 0, 43, 90, 124, 250, 264, 270, 264, 267, 249],
+    ...     [326, 354, 210, 206, 203, 43, 0, 108, 157, 271, 290, 299, 295, 303, 287],
+    ...     [329, 313, 197, 182, 167, 90, 108, 0, 70, 164, 183, 195, 194, 210, 201],
+    ...     [285, 249, 153, 133, 114, 124, 157, 70, 0, 141, 147, 148, 140, 147, 134],
+    ...     [401, 324, 280, 257, 234, 250, 271, 164, 141, 0, 36, 67, 88, 134, 150],
+    ...     [388, 300, 272, 248, 225, 264, 290, 183, 147, 36, 0, 33, 57, 104, 124],
+    ...     [366, 272, 257, 233, 210, 270, 299, 195, 148, 67, 33, 0, 26, 73, 96],
+    ...     [343, 247, 237, 214, 190, 264, 295, 194, 140, 88, 57, 26, 0, 48, 71],
+    ...     [305, 201, 210, 187, 165, 267, 303, 210, 147, 134, 104, 73, 48, 0, 30],
+    ...     [276, 176, 181, 158, 137, 249, 287, 201, 134, 150, 124, 96, 71, 30, 0]])
+    [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 2, 1]
+    """
+    # in this dict we will store all the shortest distances in format
+    # {(bits, end): distance}, where:
+    # bits = set of vertexes which we have to go through but in bits form
+    # end = end vertex
+    # distance = distance from 0 to end through bits
+    minimal_distances = {}
+    cities_count = len(cities_map)
+
+    vertexes_without_first = range(1, cities_count)
+    # init distances from 0 to every vertex (adjacency vertexes only)
+    for vertex in range(1, cities_count):
+        minimal_distances[(1 << vertex, vertex)] = (distance(0, vertex, cities_map), 0)
+
+    for size in range(2, cities_count):
+        for combination in combinations(vertexes_without_first, size):
+            bits = vertexes_to_bits(combination)
+
+            for vertex in combination:
+                local_shortest = []
+
+                for i in combination:
+                    if i == vertex:
+                        continue
+
+                    # get combination without vertex element
+                    # we just set 0 in vertex-th place
+                    prev = binary_without_vertex(vertex, bits)
+
+                    distance_through_i = minimal_distances[(prev, i)][0]
+                    distance_through_i += distance(i, vertex, cities_map)
+
+                    local_shortest.append((distance_through_i, i))
+
+                minimal_distances[(bits, vertex)] = min(local_shortest, key=lambda x: x[0])
+
+    # get all distances through all vertexes
+    local_shortest = []
+    full_cities_bits = vertexes_to_bits(vertexes_without_first)
+
+    for vertex in vertexes_without_first:
+        distance_through_vertex = minimal_distances[(full_cities_bits, vertex)][0]
+        distance_through_vertex += distance(vertex, 0, cities_map)
+
+        local_shortest.append((distance_through_vertex, vertex))
+
+    # reconstruct the shortest way
+    # [0] is the shortest distance
+    _, parent = min(local_shortest, key=lambda x: x[0])
+
+    path = []
+    for _ in vertexes_without_first:
+        path.append(parent)
+
+        binary_path_new = binary_without_vertex(parent, full_cities_bits)
+        parent = minimal_distances[(full_cities_bits, parent)][1]
+        full_cities_bits = binary_path_new
+
+    path = reversed(path)
+    # we need to start from 1, so add 1 to every vertex
+    path = list(map(lambda x: x + 1, path))
+
+    return [1] + path + [1]
