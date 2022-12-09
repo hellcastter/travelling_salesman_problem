@@ -3,19 +3,18 @@ import time
 import math
 from typing import List
 from pprint import pprint
-from itertools import permutations
+from itertools import permutations, combinations
 
 minimal_distances = {}
 
 def read_csv(file_path: str) -> List[List[int]]:
     """ 1 """
     return [
-        [0, 2, 9, 10, 4],
-        [1, 0, 6, 4, 6],
-        [15, 7, 0, 8, 8],
-        [6, 3, 12, 0, 5],
-        [6, 3, 12, 3, 0]]
-    
+        [0, 2, 9, 10],
+        [1, 0, 6, 4],
+        [15, 7, 0, 8],
+        [6, 3, 12, 0]]
+
     # return [
     #     [0, 2, 9, 10],
     #     [1, 0, 6, 4],
@@ -138,94 +137,73 @@ def length_of_shortest_path(end: int, cities_count: int, cities_map: List[List[i
     >>> length_of_shortest_path(1, {2, 3}, [[0,2,9,10], [1,0,6,4], [15,7,0,8], [6,3,12,0]])
     20
     """
-    if cities_count == 0:
-        minimal_distances[(end, -1, 0)] = (distance(0, end, cities_map), [])
-        return
     
-    size = len(cities_map)
-    city_range = list(range(1, size))
-    city_range.remove(end)
+def g(S: List[int], x: int) -> int:
+    print(S, x)
     
-    for exclude_city in city_range:
-        loc_min_v = math.inf
-        loc_min_p = []
-        
-        a = city_range[:]
-        a.remove(exclude_city)
-        for through_city in a:
-            if through_city == end:
-                continue
-            
-            
-            exclude = -1 if cities_count - 1 == 0 else exclude_city
-            prev_distance = minimal_distances[through_city, exclude, cities_count - 1]
-            
-            if end in minimal_distances[through_city, exclude, cities_count - 1][1]:
-                continue
-            
-            
-            
-            d = prev_distance[0] + distance(through_city, end, cities_map)
-            
-            if loc_min_v > d:
-                loc_min_v = d
-                loc_min_p = prev_distance[1] + [through_city]
-        
-        minimal_distances[(end, exclude_city, cities_count)] = (loc_min_v, loc_min_p)
-
-        # previous_minimum = minimal_distances[(exclude, end, len(cities_count) - 1)]
-        # minimal_distances[(end, ?, len(cities_list))] = (previous_minimum[0] + distance(exclude, end, cities_map), previous_minimum[1] + [exclude])
-
+    return 1
+    
 
 def TSP(cities_map: List[List[int]]) -> List[int]:
     """ 1 """
-    map_size = len(cities_map)
-    
-    # for i in range(1, map_size):
-        # length_of_shortest_path(i, [], cities_map)
+    size = len(cities_map)
+
+    for k in range(1, size):
+        minimal_distances[(1 << k, k)] = distance(0, k, cities_map)
 
     
-    for set_size in range(map_size - 2):
-        # combination_used_list = [()]
-        
-        for vertex in range(1, map_size):
-            # print(set_size, vertex)
-            length_of_shortest_path(vertex, set_size, cities_map)
+    a = tuple(range(1, size)) #!
+    for s in range(2, size): #!
+        for S in combinations(a, s):
+            bits = 0
+            for m in S:
+                bits |= 1 << m
             
-
-        # for excluded in range(1, map_size):
-            # permutations_set = set(range(1, map_size))
-            # permutations_set.remove(excluded)
-            
-            # combinations = permutations(permutations_set, set_size)
-            # for combination in combinations:
-                # for vertex in combination:
-                    # combination_list = list(combination)
-                    # combination_list.remove(vertex)
+            for k in S:
+                res = []
+                for m in S:
+                    if m == k:
+                        continue
                     
-                    # if (vertex, combination_list) not in combination_used_list:
-                        # combination_used_list.append((vertex, combination_list))
-                
-    # for i in range(1, map_size):
-        # print( minimal_distances[i] )
+                    # S1 = list(S)
+                    # S1.remove(k)
+                    # S1 = tuple(S1)
+                    
+                    prev = bits & ~(1 << k)
+                    res.append(minimal_distances[prev, m] + distance(m, k, cities_map))
+                    
+                minimal_distances[bits, k] = min(res)
+        
+    res = []
+    full_cities = 0
 
+    for m in range(1, size):
+        full_cities |= 1 << m
+
+    for k in range(1, size):
+        res.append(minimal_distances[full_cities, k] + distance(k, 0, cities_map))
+        
+    print(min(res))
     pprint(minimal_distances)
+    # opt := min k≠1 [g({2, 3, ..., n}, k) + d(k, 1)]
+    # return (opt)
+
 
 start = time.time()
 TSP(read_csv('graph.csv'))
-# TSP([[0, 141, 134, 152, 173, 289, 326, 329, 285, 401, 388, 366, 343, 305, 276], 
-# [141, 0, 152, 150, 153, 312, 354, 313, 249, 324, 300, 272, 247, 201, 176], 
-# [134, 152, 0, 24, 48, 168, 210, 197, 153, 280, 272, 257, 237, 210, 181], 
-# [152, 150, 24, 0, 24, 163, 206, 182, 133, 257, 248, 233, 214, 187, 158], 
-# [173, 153, 48, 24, 0, 160, 203, 167, 114, 234, 225, 210, 190, 165, 137], 
-# [289, 312, 168, 163, 160, 0, 43, 90, 124, 250, 264, 270, 264, 267, 249], 
-# [326, 354, 210, 206, 203, 43, 0, 108, 157, 271, 290, 299, 295, 303, 287], 
-# [329, 313, 197, 182, 167, 90, 108, 0, 70, 164, 183, 195, 194, 210, 201], 
-# [285, 249, 153, 133, 114, 124, 157, 70, 0, 141, 147, 148, 140, 147, 134], 
-# [401, 324, 280, 257, 234, 250, 271, 164, 141, 0, 36, 67, 88, 134, 150], 
-# [388, 300, 272, 248, 225, 264, 290, 183, 147, 36, 0, 33, 57, 104, 124], 
-# [366, 272, 257, 233, 210, 270, 299, 195, 148, 67, 33, 0, 26, 73, 96], 
-# [343, 247, 237, 214, 190, 264, 295, 194, 140, 88, 57, 26, 0, 48, 71], 
-# [305, 201, 210, 187, 165, 267, 303, 210, 147, 134, 104, 73, 48, 0, 30], 
+# TSP([[0, 141, 134, 152, 173, 289, 326, 329, 285, 401, 388, 366, 343, 305, 276],
+# [141, 0, 152, 150, 153, 312, 354, 313, 249, 324, 300, 272, 247, 201, 176],
+# [134, 152, 0, 24, 48, 168, 210, 197, 153, 280, 272, 257, 237, 210, 181],
+# [152, 150, 24, 0, 24, 163, 206, 182, 133, 257, 248, 233, 214, 187, 158],
+# [173, 153, 48, 24, 0, 160, 203, 167, 114, 234, 225, 210, 190, 165, 137],
+# [289, 312, 168, 163, 160, 0, 43, 90, 124, 250, 264, 270, 264, 267, 249],
+# [326, 354, 210, 206, 203, 43, 0, 108, 157, 271, 290, 299, 295, 303, 287],
+# [329, 313, 197, 182, 167, 90, 108, 0, 70, 164, 183, 195, 194, 210, 201],
+# [285, 249, 153, 133, 114, 124, 157, 70, 0, 141, 147, 148, 140, 147, 134],
+# [401, 324, 280, 257, 234, 250, 271, 164, 141, 0, 36, 67, 88, 134, 150],
+# [388, 300, 272, 248, 225, 264, 290, 183, 147, 36, 0, 33, 57, 104, 124],
+# [366, 272, 257, 233, 210, 270, 299, 195, 148, 67, 33, 0, 26, 73, 96],
+# [343, 247, 237, 214, 190, 264, 295, 194, 140, 88, 57, 26, 0, 48, 71],
+# [305, 201, 210, 187, 165, 267, 303, 210, 147, 134, 104, 73, 48, 0, 30],
 # [276, 176, 181, 158, 137, 249, 287, 201, 134, 150, 124, 96, 71, 30, 0]])
 print("--- %s seconds ---" % (time.time() - start))
