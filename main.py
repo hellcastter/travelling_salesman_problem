@@ -24,7 +24,7 @@ def read_csv(file_name: str) -> List[List[int]]:
     discriminant = 1 + 4 * data_size
 
     # count of cities
-    size = int((1 + math.sqrt(discriminant)) // 2)
+    size = int((1 + math.sqrt(discriminant)) / 2)
 
     # init resulted matrix
     result = [[0] * size for _ in range(size)]
@@ -34,6 +34,7 @@ def read_csv(file_name: str) -> List[List[int]]:
         result[row[0]][row[1]] = row[2]
 
     return result
+
 
 def distance(x_city: int, y_city: int, cities_map: List[List[int]]) -> int:
     """
@@ -46,6 +47,7 @@ def distance(x_city: int, y_city: int, cities_map: List[List[int]]) -> int:
         int: distance
     """
     return cities_map[y_city][x_city]
+
 
 def vertexes_to_bits(combination: Iterable[int]) -> int:
     """
@@ -65,6 +67,7 @@ def vertexes_to_bits(combination: Iterable[int]) -> int:
         bits |= 1 << i
 
     return bits
+
 
 def binary_without_vertex(vertex: int, binary: int) -> int:
     """
@@ -98,7 +101,7 @@ def exact_tsp(cities_map: List[List[int]]) -> List[int]:
     >>> exact_tsp([[0, 2, 9, 10], [1, 0, 6, 4], [15, 7, 0, 8], [6, 3, 12, 0]])
     [1, 2, 4, 3, 1]
 
-    11x11
+    11x11, execution time +- 0.01914471669998602s
     >>> exact_tsp([[0, 29, 20, 21, 16, 31, 100, 12, 4, 31, 18],
     ...     [29, 0, 15, 29, 28, 40, 72, 21, 29, 41, 12],
     ...     [20, 15, 0, 15, 14, 25, 81, 9, 23, 27, 13],
@@ -112,7 +115,7 @@ def exact_tsp(cities_map: List[List[int]]) -> List[int]:
     ...     [18, 12, 13, 25, 22, 37, 84, 13, 18, 38, 0]])
     [1, 9, 11, 2, 7, 3, 6, 10, 4, 5, 8, 1]
 
-    15x15
+    15x15, execution time +- 0.606215979999979s
     >>> exact_tsp([[0, 141, 134, 152, 173, 289, 326, 329, 285, 401, 388, 366, 343, 305, 276],
     ...     [141, 0, 152, 150, 153, 312, 354, 313, 249, 324, 300, 272, 247, 201, 176],
     ...     [134, 152, 0, 24, 48, 168, 210, 197, 153, 280, 272, 257, 237, 210, 181],
@@ -139,6 +142,7 @@ def exact_tsp(cities_map: List[List[int]]) -> List[int]:
     cities_count = len(cities_map)
 
     vertexes_without_first = range(1, cities_count)
+
     # init distances from 0 to every vertex (adjacency vertexes only)
     for vertex in range(1, cities_count):
         minimal_distances[(1 << vertex, vertex)] = (distance(0, vertex, cities_map), 0)
@@ -189,6 +193,6 @@ def exact_tsp(cities_map: List[List[int]]) -> List[int]:
 
     path = reversed(path)
     # we need to start from 1, so add 1 to every vertex
-    path = list(map(lambda x: x + 1, path))
+    path = [i + 1 for i in path]
 
     return [1] + path + [1]
