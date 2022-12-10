@@ -19,22 +19,21 @@ def read_csv(file_name: str) -> List[List[int]]:
 
     # get matrix size (max element) and convert all to int
     size = 0
-    for index, row in enumerate(data):
-        data[index] = row.split(',')
-        data[index] = [int(i) - 1 for i in data[index]]
+    data_int = []
+    for row in data:
+        row_int = [int(i) for i in row.split(',')]
+        data_int.append(row_int)
 
-        row = data[index]
-        size = max(size, row[0], row[1])
+        size: int = max(size, row_int[0], row_int[1])
 
-    size += 1
     matrix = [[-1] * size for _ in range(size)] # init matrix
 
     # fill matrix with data
-    for row in data:
+    for row in data_int:
         first, second, weight = row
 
-        matrix[first][second] = weight
-        matrix[second][first] = weight
+        matrix[first - 1][second - 1] = weight
+        matrix[second - 1][first - 1] = weight
 
     # make main diagonal = 0
     for i in range(size):
@@ -94,7 +93,68 @@ def binary_without_vertex(vertex: int, binary: int) -> int:
     return binary & ~(1 << vertex)
 
 
-def exact_tsp(cities_map: List[List[int]]) -> List[int]:
+def dfs(graph: List[List[int]]) -> List[int]:
+    """
+    perform dfs on the graph and store its result
+    in a adjacency graph
+
+    Args:
+        graph (List[List[int]]): original graph
+
+    Returns:
+        List[int]: path
+
+    >>> dfs([[0, 5, -1], [5, 0, 3], [-1, 3, 0]])
+    [0, 1, 2]
+
+    >>> dfs([[0, 5, 0, -1], [5, 0, 3, -1], [0, 3, 0, -1], [-1, -1, -1, 0]])
+    [0, 1, 2]
+    """
+    result = [0]
+    stack = [0]
+
+    while stack:
+        key = stack[-1]
+        vertices = graph[key]
+
+        for index, vertex in enumerate(vertices):
+            if vertex in (0, -1):
+                continue
+
+            if index not in result:
+                result.append(index)
+                stack.append(index)
+                break
+        else:
+            # delete only in case we didn't find a vertex,
+            # which is not in result. In this case, if break statement
+            # wasn't called
+            del stack[-1]
+
+    return result
+
+
+def is_connected(graph: List[List[int]]) -> bool:
+    """
+    Checks wether graph is connected
+
+    Args:
+        graph (List[List[int]]): original graph
+
+    Returns:
+        bool: is connected
+
+    >>> is_connected([[0, 5, -1], [5, 0, 3], [-1, 3, 0]])
+    True
+
+    >>> is_connected([[0, 5, 0, -1], [5, 0, 3, -1], [0, 3, 0, -1], [-1, -1, -1, 0]])
+    False
+    """
+    dfs_result = dfs(graph)
+    return len(dfs_result) == len(graph)
+
+
+def exact_tsp(cities_map: List[List[int]]) -> List[int] | None:
     """
     Searches the shortest way through all vertexes in graph going through
     all vertexes only once in exact way
@@ -104,6 +164,10 @@ def exact_tsp(cities_map: List[List[int]]) -> List[int]:
 
     Returns:
         List[int]: the shortest way
+
+    >>> exact_tsp([[0, 4, -1, -1], [4, 0, -1, -1], [-1, -1, 0, 5], [-1, -1, 5, 0]])
+    Graph is not connected.
+    It is impossible to go through all vertexes.
 
     >>> exact_tsp([[0, 2, 9, 10], [1, 0, 6, 4], [15, 7, 0, 8], [6, 3, 12, 0]])
     [1, 2, 4, 3, 1]
@@ -145,6 +209,11 @@ def exact_tsp(cities_map: List[List[int]]) -> List[int]:
     # bits = set of vertexes which we have to go through but in bits form
     # end = end vertex
     # distance = distance from 0 to end through bits
+    if not is_connected(cities_map):
+        print('Graph is not connected.')
+        print('It is impossible to go through all vertexes.')
+        return
+
     minimal_distances = {}
     cities_count = len(cities_map)
 
