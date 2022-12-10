@@ -1,5 +1,4 @@
 """ Traveling salesman problem """
-import math
 from typing import List
 from itertools import combinations
 from collections.abc import Iterable
@@ -18,22 +17,30 @@ def read_csv(file_name: str) -> List[List[int]]:
     with open(file_name, 'r', encoding='utf-8') as file:
         data = file.read().strip().split('\n')
 
-    # File must have n^2 - n rows, where n is count of cities,
-    # because n^2 is every-to-every city and n is and empty diagonal
-    data_size = len(data)
-    discriminant = 1 + 4 * data_size
+    # get matrix size (max element) and convert all to int
+    size = 0
+    for index, row in enumerate(data):
+        data[index] = row.split(',')
+        data[index] = [int(i) - 1 for i in data[index]]
 
-    # count of cities
-    size = int((1 + math.sqrt(discriminant)) / 2)
+        row = data[index]
+        size = max(size, row[0], row[1])
 
-    # init resulted matrix
-    result = [[0] * size for _ in range(size)]
+    size += 1
+    matrix = [[-1] * size for _ in range(size)] # init matrix
 
+    # fill matrix with data
     for row in data:
-        row = list(map(int, row.split(",")))
-        result[row[0]][row[1]] = row[2]
+        first, second, weight = row
 
-    return result
+        matrix[first][second] = weight
+        matrix[second][first] = weight
+
+    # make main diagonal = 0
+    for i in range(size):
+        matrix[i][i] = 0
+
+    return matrix
 
 
 def distance(x_city: int, y_city: int, cities_map: List[List[int]]) -> int:
