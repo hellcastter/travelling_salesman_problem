@@ -3,7 +3,11 @@ from typing import List
 from itertools import combinations
 from collections.abc import Iterable
 
-def read_csv(file_name: str) -> List[List[int]]:
+CITY = int | float
+MAP_OF_CITIES = List[List[CITY]]
+
+
+def read_csv(file_name: str) -> MAP_OF_CITIES:
     """
     Read matrix from .csv file. CSV file must be in format
     first_city,second_city,length
@@ -26,7 +30,7 @@ def read_csv(file_name: str) -> List[List[int]]:
 
         size: int = max(size, row_int[0], row_int[1])
 
-    matrix = [[-1] * size for _ in range(size)] # init matrix
+    matrix = [float('inf') * size for _ in range(size)] # init matrix
 
     # fill matrix with data
     for row in data_int:
@@ -42,7 +46,7 @@ def read_csv(file_name: str) -> List[List[int]]:
     return matrix
 
 
-def distance(x_city: int, y_city: int, cities_map: List[List[int]]) -> int:
+def distance(x_city: int, y_city: int, cities_map: MAP_OF_CITIES) -> int:
     """
     Distance between two cities
     Args:
@@ -154,7 +158,7 @@ def is_connected(graph: List[List[int]]) -> bool:
     return len(dfs_result) == len(graph)
 
 
-def exact_tsp(cities_map: List[List[int]]) -> List[int] | None:
+def exact_tsp(cities_map: MAP_OF_CITIES) -> List[int] | None:
     """
     Searches the shortest way through all vertexes in graph going through
     all vertexes only once in exact way
@@ -272,3 +276,65 @@ def exact_tsp(cities_map: List[List[int]]) -> List[int] | None:
     path = [i + 1 for i in path]
 
     return [1] + path + [1]
+
+
+def nna(cities_map: MAP_OF_CITIES) -> List[int] | None:
+    """_summary_
+
+    Args:
+        cities_map (MAP_OF_CITIES): _description_
+
+    Returns:
+        List[int] | None: _description_
+
+    >>> nna([[0, 141, 134, 152, 173, 289, 326, 329, 285, 401, 388, 366, 343, 305, 276],
+    ...     [141, 0, 152, 150, 153, 312, 354, 313, 249, 324, 300, 272, 247, 201, 176],
+    ...     [134, 152, 0, 24, 48, 168, 210, 197, 153, 280, 272, 257, 237, 210, 181],
+    ...     [152, 150, 24, 0, 24, 163, 206, 182, 133, 257, 248, 233, 214, 187, 158],
+    ...     [173, 153, 48, 24, 0, 160, 203, 167, 114, 234, 225, 210, 190, 165, 137],
+    ...     [289, 312, 168, 163, 160, 0, 43, 90, 124, 250, 264, 270, 264, 267, 249],
+    ...     [326, 354, 210, 206, 203, 43, 0, 108, 157, 271, 290, 299, 295, 303, 287],
+    ...     [329, 313, 197, 182, 167, 90, 108, 0, 70, 164, 183, 195, 194, 210, 201],
+    ...     [285, 249, 153, 133, 114, 124, 157, 70, 0, 141, 147, 148, 140, 147, 134],
+    ...     [401, 324, 280, 257, 234, 250, 271, 164, 141, 0, 36, 67, 88, 134, 150],
+    ...     [388, 300, 272, 248, 225, 264, 290, 183, 147, 36, 0, 33, 57, 104, 124],
+    ...     [366, 272, 257, 233, 210, 270, 299, 195, 148, 67, 33, 0, 26, 73, 96],
+    ...     [343, 247, 237, 214, 190, 264, 295, 194, 140, 88, 57, 26, 0, 48, 71],
+    ...     [305, 201, 210, 187, 165, 267, 303, 210, 147, 134, 104, 73, 48, 0, 30],
+    ...     [276, 176, 181, 158, 137, 249, 287, 201, 134, 150, 124, 96, 71, 30, 0]])
+    [1, 3, 4, 5, 9, 8, 6, 7, 10, 11, 12, 13, 14, 15, 2, 1]
+    """
+    if not is_connected(cities_map):
+        print('Graph is not connected.')
+        print('It is impossible to go through all vertexes.')
+        return
+
+    result = [0]
+    d = 0
+
+    for _ in range(len(cities_map)):
+        city = result[-1]
+        neighbors = cities_map[city]
+
+        closest = (float('inf'), float('inf'))
+
+        for neighbor, neighbor_distance in enumerate(neighbors):
+            if neighbor in result:
+                continue
+
+            closest = min([closest, (neighbor, neighbor_distance)], key=lambda x: x[1])
+
+        if closest[1] != float('inf'):
+            result.append(closest[0])
+            d += closest[1]
+
+    result.append(0)
+    result = [i + 1 for i in result]
+    
+    d += distance(result[-2], 0, cities_map)
+    print(d)
+
+    return result
+
+import doctest
+print(doctest.testmod())
