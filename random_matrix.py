@@ -2,7 +2,7 @@ import random
 
 result = ""
 
-number = 200
+number = 1000
 for i in range(number):
     for j in range(number):
         if i == j:

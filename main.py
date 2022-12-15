@@ -30,7 +30,7 @@ def read_csv(file_name: str) -> MAP_OF_CITIES:
 
         size: int = max(size, row_int[0], row_int[1])
 
-    matrix = [float('inf') * size for _ in range(size)] # init matrix
+    matrix = [[float('inf')] * size for _ in range(size)] # init matrix
 
     # fill matrix with data
     for row in data_int:
@@ -46,7 +46,7 @@ def read_csv(file_name: str) -> MAP_OF_CITIES:
     return matrix
 
 
-def distance(x_city: int, y_city: int, cities_map: MAP_OF_CITIES) -> int:
+def distance(x_city: int, y_city: int, cities_map: MAP_OF_CITIES) -> CITY:
     """
     Distance between two cities
     Args:
@@ -97,7 +97,7 @@ def binary_without_vertex(vertex: int, binary: int) -> int:
     return binary & ~(1 << vertex)
 
 
-def dfs(graph: List[List[int]]) -> List[int]:
+def dfs(graph: MAP_OF_CITIES) -> List[CITY]:
     """
     perform dfs on the graph and store its result
     in a adjacency graph
@@ -138,7 +138,7 @@ def dfs(graph: List[List[int]]) -> List[int]:
     return result
 
 
-def is_connected(graph: List[List[int]]) -> bool:
+def is_connected(graph: MAP_OF_CITIES) -> bool:
     """
     Checks wether graph is connected
 
@@ -158,7 +158,7 @@ def is_connected(graph: List[List[int]]) -> bool:
     return len(dfs_result) == len(graph)
 
 
-def exact_tsp(cities_map: MAP_OF_CITIES) -> List[int] | None:
+def exact_tsp(cities_map: MAP_OF_CITIES) -> List[CITY] | None:
     """
     Searches the shortest way through all vertexes in graph going through
     all vertexes only once in exact way
@@ -278,14 +278,16 @@ def exact_tsp(cities_map: MAP_OF_CITIES) -> List[int] | None:
     return [1] + path + [1]
 
 
-def nna(cities_map: MAP_OF_CITIES) -> List[int] | None:
-    """_summary_
+def nna(cities_map: MAP_OF_CITIES) -> List[CITY] | None:
+    """
+    Search one of the shortest ways in travelling sales problem using
+    nearest neightbor algorithm
 
     Args:
-        cities_map (MAP_OF_CITIES): _description_
+        cities_map (MAP_OF_CITIES): Adjacency matrix representing distances between vertexes
 
     Returns:
-        List[int] | None: _description_
+        List[int]: one of the shortest way
 
     >>> nna([[0, 141, 134, 152, 173, 289, 326, 329, 285, 401, 388, 366, 343, 305, 276],
     ...     [141, 0, 152, 150, 153, 312, 354, 313, 249, 324, 300, 272, 247, 201, 176],
@@ -310,7 +312,6 @@ def nna(cities_map: MAP_OF_CITIES) -> List[int] | None:
         return
 
     result = [0]
-    d = 0
 
     for _ in range(len(cities_map)):
         city = result[-1]
@@ -326,15 +327,8 @@ def nna(cities_map: MAP_OF_CITIES) -> List[int] | None:
 
         if closest[1] != float('inf'):
             result.append(closest[0])
-            d += closest[1]
 
     result.append(0)
     result = [i + 1 for i in result]
-    
-    d += distance(result[-2], 0, cities_map)
-    print(d)
 
     return result
-
-import doctest
-print(doctest.testmod())
