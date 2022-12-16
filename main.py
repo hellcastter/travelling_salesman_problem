@@ -1,13 +1,10 @@
 """ Traveling salesman problem """
 from typing import List
 from itertools import combinations
-from collections.abc import Iterable
-
-CITY = int | float
-MAP_OF_CITIES = List[List[CITY]]
+from utils import CITIES_MAP, binary_without_vertex, distance, is_connected, vertexes_to_bits
 
 
-def read_csv(file_name: str) -> MAP_OF_CITIES:
+def read_csv(file_name: str) -> CITIES_MAP:
     """
     Read matrix from .csv file. CSV file must be in format
     first_city,second_city,length
@@ -46,119 +43,7 @@ def read_csv(file_name: str) -> MAP_OF_CITIES:
     return matrix
 
 
-def distance(x_city: int, y_city: int, cities_map: MAP_OF_CITIES) -> int:
-    """
-    Distance between two cities
-    Args:
-        x_city (int): start city
-        y_city (int): end city
-        cities_map (List[List[int]]): city map
-    Returns:
-        int: distance
-    """
-    return cities_map[y_city][x_city]
-
-
-def vertexes_to_bits(combination: Iterable[int]) -> int:
-    """
-    Convert vertexes to bits by adding all binaries values
-
-    Args:
-        combination (Tuple[int]): Tuple of vertexes
-
-    Returns:
-        int: Binary representation
-
-    >>> vertexes_to_bits((1, 2, 3))
-    14
-    """
-    bits = 0
-    for i in combination:
-        bits |= 1 << i
-
-    return bits
-
-
-def binary_without_vertex(vertex: int, binary: int) -> int:
-    """
-    get combination without vertex element
-    we just set 0 in vertex-th place in binary
-
-    Args:
-        vertex (int): "deleted" vertex
-        binary (int): set represented in binary
-
-    Returns:
-        int: binary without element
-
-    >>> binary_without_vertex(3, 16)
-    16
-    """
-    return binary & ~(1 << vertex)
-
-
-def dfs(graph: List[List[int]]) -> List[int]:
-    """
-    perform dfs on the graph and store its result
-    in a adjacency graph
-
-    Args:
-        graph (List[List[int]]): original graph
-
-    Returns:
-        List[int]: path
-
-    >>> dfs([[0, 5, -1], [5, 0, 3], [-1, 3, 0]])
-    [0, 1, 2]
-
-    >>> dfs([[0, 5, 0, -1], [5, 0, 3, -1], [0, 3, 0, -1], [-1, -1, -1, 0]])
-    [0, 1, 2]
-    """
-    result = [0]
-    stack = [0]
-
-    while stack:
-        key = stack[-1]
-        vertices = graph[key]
-
-        for index, vertex in enumerate(vertices):
-            if vertex in (0, -1):
-                continue
-
-            if index not in result:
-                result.append(index)
-                stack.append(index)
-                break
-        else:
-            # delete only in case we didn't find a vertex,
-            # which is not in result. In this case, if break statement
-            # wasn't called
-            del stack[-1]
-
-    return result
-
-
-def is_connected(graph: List[List[int]]) -> bool:
-    """
-    Checks wether graph is connected
-
-    Args:
-        graph (List[List[int]]): original graph
-
-    Returns:
-        bool: is connected
-
-    >>> is_connected([[0, 5, -1], [5, 0, 3], [-1, 3, 0]])
-    True
-
-    >>> is_connected([[0, 5, 0, -1], [5, 0, 3, -1], [0, 3, 0, -1], [-1, -1, -1, 0]])
-    False
-    """
-    dfs_result = dfs(graph)
-    return len(dfs_result) == len(graph)
-
-
-def exact_tsp(cities_map: MAP_OF_CITIES) -> List[int] | None:
+def exact_tsp(cities_map: CITIES_MAP) -> List[int] | None:
     """
     Searches the shortest way through all vertexes in graph going through
     all vertexes only once in exact way
@@ -167,7 +52,7 @@ def exact_tsp(cities_map: MAP_OF_CITIES) -> List[int] | None:
         cities_map (List[List[int]]): Adjacency matrix representing distances between vertexes
 
     Returns:
-        List[int]: the shortest way
+        List[int] | None: the shortest way if exists. On the other case None
 
     >>> exact_tsp([[0, 4, -1, -1], [4, 0, -1, -1], [-1, -1, 0, 5], [-1, -1, 5, 0]])
     Graph is not connected.
@@ -278,14 +163,16 @@ def exact_tsp(cities_map: MAP_OF_CITIES) -> List[int] | None:
     return [1] + path + [1]
 
 
-def nna(cities_map: MAP_OF_CITIES) -> List[int] | None:
-    """_summary_
+def nna(cities_map: CITIES_MAP) -> List[int] | None:
+    """
+    Searches the shortest way through all vertexes in graph going through
+    all vertexes only once in approximate way using nearest neighbor algorithm
 
     Args:
-        cities_map (MAP_OF_CITIES): _description_
+        cities_map (CITIES_MAP): Adjacency matrix representing distances between vertexes
 
     Returns:
-        List[int] | None: _description_
+        List[int] | None: one of the shortest way if exists. On the other case None
 
     >>> nna([[0, 141, 134, 152, 173, 289, 326, 329, 285, 401, 388, 366, 343, 305, 276],
     ...     [141, 0, 152, 150, 153, 312, 354, 313, 249, 324, 300, 272, 247, 201, 176],
@@ -307,10 +194,9 @@ def nna(cities_map: MAP_OF_CITIES) -> List[int] | None:
     if not is_connected(cities_map):
         print('Graph is not connected.')
         print('It is impossible to go through all vertexes.')
-        return
+        return None
 
     result = [0]
-    d = 0
 
     for _ in range(len(cities_map)):
         city = result[-1]
@@ -326,15 +212,8 @@ def nna(cities_map: MAP_OF_CITIES) -> List[int] | None:
 
         if closest[1] != float('inf'):
             result.append(closest[0])
-            d += closest[1]
 
     result.append(0)
     result = [i + 1 for i in result]
-    
-    d += distance(result[-2], 0, cities_map)
-    print(d)
 
     return result
-
-import doctest
-print(doctest.testmod())
