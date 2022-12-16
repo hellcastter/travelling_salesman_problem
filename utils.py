@@ -3,6 +3,7 @@ from typing import Iterable, List
 
 CITY = int | float
 CITIES_MAP = List[List[CITY]]
+PATH = List[int] | None
 
 def distance(x_city: int, y_city: int, cities_map: CITIES_MAP) -> int:
     """

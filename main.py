@@ -1,7 +1,6 @@
 """ Traveling salesman problem """
-from typing import List
 from itertools import combinations
-from utils import CITIES_MAP, binary_without_vertex, distance, is_connected, vertexes_to_bits
+from utils import CITIES_MAP, PATH, binary_without_vertex, distance, is_connected, vertexes_to_bits
 
 
 def read_csv(file_name: str) -> CITIES_MAP:
@@ -43,7 +42,7 @@ def read_csv(file_name: str) -> CITIES_MAP:
     return matrix
 
 
-def exact_tsp(cities_map: CITIES_MAP) -> List[int] | None:
+def exact_tsp(cities_map: CITIES_MAP) -> PATH:
     """
     Searches the shortest way through all vertexes in graph going through
     all vertexes only once in exact way
@@ -52,7 +51,7 @@ def exact_tsp(cities_map: CITIES_MAP) -> List[int] | None:
         cities_map (List[List[int]]): Adjacency matrix representing distances between vertexes
 
     Returns:
-        List[int] | None: the shortest way if exists. On the other case None
+        PATH: the shortest way if exists. On the other case None
 
     >>> exact_tsp([[0, 4, -1, -1], [4, 0, -1, -1], [-1, -1, 0, 5], [-1, -1, 5, 0]])
     Graph is not connected.
@@ -163,7 +162,7 @@ def exact_tsp(cities_map: CITIES_MAP) -> List[int] | None:
     return [1] + path + [1]
 
 
-def nna(cities_map: CITIES_MAP) -> List[int] | None:
+def nna(cities_map: CITIES_MAP) -> PATH:
     """
     Searches the shortest way through all vertexes in graph going through
     all vertexes only once in approximate way using nearest neighbor algorithm
@@ -172,7 +171,7 @@ def nna(cities_map: CITIES_MAP) -> List[int] | None:
         cities_map (CITIES_MAP): Adjacency matrix representing distances between vertexes
 
     Returns:
-        List[int] | None: one of the shortest way if exists. On the other case None
+        PATH: one of the shortest way if exists. On the other case None
 
     >>> nna([[0, 141, 134, 152, 173, 289, 326, 329, 285, 401, 388, 366, 343, 305, 276],
     ...     [141, 0, 152, 150, 153, 312, 354, 313, 249, 324, 300, 272, 247, 201, 176],
