@@ -7,7 +7,47 @@ CITY = int | float
 CITIES_MAP = List[List[CITY]]
 PATH = List[int] | None
 
-def distance(x_city: int, y_city: int, cities_map: CITIES_MAP) -> int:
+
+def read_csv(file_name: str) -> CITIES_MAP:
+    """
+    Read matrix from .csv file. CSV file must be in format
+    first_city,second_city,length
+
+    Args:
+        file_name (str): path to file
+
+    Returns:
+        List[List[int]]: matrix of length
+    """
+    with open(file_name, 'r', encoding='utf-8') as file:
+        data = file.read().strip().split('\n')
+
+    # get matrix size (max element) and convert all to int
+    size = 0
+    data_int = []
+    for row in data:
+        row_int = [int(i) for i in row.split(',')]
+        data_int.append(row_int)
+
+        size: int = max(size, row_int[0], row_int[1])
+
+    matrix = [[float('inf')] * size for _ in range(size)] # init matrix
+
+    # fill matrix with data
+    for row in data_int:
+        first, second, weight = row
+
+        matrix[first - 1][second - 1] = weight
+        matrix[second - 1][first - 1] = weight
+
+    # make main diagonal = 0
+    for i in range(size):
+        matrix[i][i] = 0
+
+    return matrix
+
+
+def distance(x_city: int, y_city: int, cities_map: CITIES_MAP) -> CITY:
     """
     Distance between two cities
     Args:
@@ -117,45 +157,6 @@ def is_connected(graph: CITIES_MAP) -> bool:
     """
     dfs_result = dfs(graph)
     return len(dfs_result) == len(graph)
-
-
-def read_csv(file_name: str) -> CITIES_MAP:
-    """
-    Read matrix from .csv file. CSV file must be in format
-    first_city,second_city,length
-
-    Args:
-        file_name (str): path to file
-
-    Returns:
-        List[List[int]]: matrix of length
-    """
-    with open(file_name, 'r', encoding='utf-8') as file:
-        data = file.read().strip().split('\n')
-
-    # get matrix size (max element) and convert all to int
-    size = 0
-    data_int = []
-    for row in data:
-        row_int = [int(i) for i in row.split(',')]
-        data_int.append(row_int)
-
-        size: int = max(size, row_int[0], row_int[1])
-
-    matrix = [float('inf') * size for _ in range(size)] # init matrix
-
-    # fill matrix with data
-    for row in data_int:
-        first, second, weight = row
-
-        matrix[first - 1][second - 1] = weight
-        matrix[second - 1][first - 1] = weight
-
-    # make main diagonal = 0
-    for i in range(size):
-        matrix[i][i] = 0
-
-    return matrix
 
 
 def exact_tsp(cities_map: CITIES_MAP) -> PATH:
