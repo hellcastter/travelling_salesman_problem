@@ -94,6 +94,8 @@ def binary_without_vertex(vertex: int, binary: int) -> int:
 
     >>> binary_without_vertex(3, 16)
     16
+    >>> binary_without_vertex(2, 45)
+    41
     """
     return binary & ~(1 << vertex)
 
