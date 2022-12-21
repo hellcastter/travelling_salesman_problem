@@ -27,7 +27,7 @@ def read_csv(file_name: str) -> CITIES_MAP:
 
         size: int = max(size, row_int[0], row_int[1])
 
-    matrix = [float('inf') * size for _ in range(size)] # init matrix
+    matrix = [[float('inf')] * size for _ in range(size)] # init matrix
 
     # fill matrix with data
     for row in data_int:
