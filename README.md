@@ -1,4 +1,4 @@
-# Traveling Salesman Problem
+# Travelling Salesman Problem
 
 ## Collaborators. Команда №19
 
