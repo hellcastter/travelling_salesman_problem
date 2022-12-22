@@ -264,7 +264,11 @@ def exact_tsp(cities_map: CITIES_MAP) -> PATH:
 
     # reconstruct the shortest way
     # [0] is the shortest distance
-    _, parent = min(local_shortest, key=lambda x: x[0])
+    shortest_distance, parent = min(local_shortest, key=lambda x: x[0])
+
+    if shortest_distance == float('inf'):
+        print('It\'s impossible to find a route.')
+        return None
 
     path = []
     for _ in vertexes_without_first:
@@ -402,5 +406,10 @@ def genetic(cities_map: CITIES_MAP, gnomes: int = 10, mutations: int = 100) -> P
                 path_distance = temp_distance
                 path = path_copy
 
-    path = min(paths, key=lambda x: x[1])[0]
+    path, shortest_distance = min(paths, key=lambda x: x[1])
+
+    if shortest_distance == float('inf'):
+        print('It\'s impossible to find a route.')
+        return None
+
     return [1] + [i + 1 for i in path]  + [1]
