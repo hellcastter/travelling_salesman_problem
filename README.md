@@ -1,5 +1,7 @@
 # Travelling Salesman Problem
 
+![Example]([https://optimoroute.com/travelling-salesman-problem/](https://optimoroute.com/wp-content/uploads/2020/07/Traveling-salesman-problem3.jpg))
+
 ## Collaborators. Команда №19
 
 - Мурин Віктор-Микола
